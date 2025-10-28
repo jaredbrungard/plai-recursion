@@ -1,0 +1,78 @@
+rec sum: (int -> int) = fn(n: int) {
+    if n < 1 {
+        0
+    } else {
+        n + sum(n + -1)
+    }
+} {
+    sum(5)
+}
+rec mult: (int -> (int -> int)) = fn(a: int) {
+    fn(b: int) {
+        if b < 1 {
+            0
+        } else {
+            a + mult(a)(b + -1)
+        }
+    }
+} {
+    rec fact: (int -> int) = fn(n: int) {
+        if n < 2 {
+            1
+        } else {
+            mult(n)(fact(n + -1))
+        }
+    } {
+        fact(4)
+    }
+}
+rec fib: (int -> int) = fn(n: int) {
+    if n < 2 {
+        n
+    } else {
+        fib(n + -1) + fib(n + -2)
+    }
+} {
+    fib(6)
+}
+rec countdown: (int -> str) = fn(n: int) {
+    if n < 1 {
+        "done"
+    } else {
+        countdown(n + -1) ++ " " ++ "count"
+    }
+} {
+    countdown(3)
+}
+rec mult: (int -> (int -> int)) = fn(a: int) {
+    fn(b: int) {
+        if b < 1 {
+            0
+        } else {
+            a + mult(a)(b + -1)
+        }
+    }
+} {
+    rec power: (int -> (int -> int)) = fn(base: int) {
+        fn(exp: int) {
+            if exp < 1 {
+                1
+            } else {
+                mult(base)(power(base)(exp + -1))
+            }
+        }
+    } {
+        power(2)(3)
+    }
+}
+let x = 10 {
+    rec local_sum: (int -> int) = fn(m: int) {
+        if m < 1 {
+            0
+        } else {
+            m + local_sum(m + -1)
+        }
+    } {
+        local_sum(x)
+    }
+}

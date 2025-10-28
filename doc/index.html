@@ -1,0 +1,112 @@
+<html><head></head><body><h1>Recursion</h1>
+
+<p>Copy your <code>tc</code> and <code>interp</code> functions into <code>interp.rs</code> and update
+them to support recursion. Note that you should not make changes
+anywhere except <code>interp.rs</code>.</p>
+
+<h2>What has changed</h2>
+
+<p>Here are the changes to the code that is given to you:</p>
+
+<h3>In <code>main.rs</code></h3>
+
+<ul>
+<li><p>A new <code>Token::Rec</code> token (the word <code>rec</code> in source code) to
+support recursive declarations</p></li>
+
+<li><p>A new <code>Expression::Rec</code> expression type</p></li>
+
+<li><p>The <code>Environment</code> type is updated to store values as type
+<code>Rc&lt;RefCell&lt;Option&lt;Value&gt;&gt;&gt;</code> (see discussion below)</p></li>
+</ul>
+
+<h3>In <code>parse.rs</code></h3>
+
+<ul>
+<li>A new parse rule for recursive expressions and parsing code to
+go with it</li>
+</ul>
+
+<h2>Support for recursion</h2>
+
+<p>Be sure to refer to the discussion of recursion in the book and
+lecture notes.</p>
+
+<p>The big change here is in the implementation of environments. Before
+we used a <code>HashMap</code> that maps a variable name (<code>String</code>) to a value
+(<code>Value</code>). That gave us immutable values that had to be fully
+computed before they could be added to an environment. In addition,
+we clone entire environments, so even if we could change a
+variable&#39;s value it would not be updated across all clones of the
+environment.</p>
+
+<p>In the new version we use a <em>reference counter</em> (<code>std::rc::Rc</code>) to
+link to the <code>Value</code>, which lets us have multiple references to the
+same value (across our clones). When the last reference is dropped,
+the value is dropped.</p>
+
+<p>Stop and go look up <code>std::rc::Rc</code> and how it works. There is a
+discussion in Chapter 4 of the “Programming Rust, 2nd edition” book
+as well as in the official documentation.</p>
+
+<p>For recursive definitions, a key idea is that the name of a variable
+needs to exist in environment while we are defining it. Consider
+this code:</p>
+
+<pre><code>rec sumn: (int -&gt; int) = fn (n: int) {
+    if n &lt; 1 {
+        n
+    } else {
+        n + sumn(n + -1)
+    }
+} {
+    sumn(10)
+}
+</code></pre>
+
+<p>A recursive definition follows the same form as <code>let</code> except that we
+require a type annotation as well. Following the form of <code>let</code>, we
+see that <code>sumn</code> is being set to:</p>
+
+<pre><code>fn (n: int) {
+    if n &lt; 1 {
+        n
+    } else {
+        n + sumn(n + -1)
+    }
+}
+</code></pre>
+
+<p>So that it can be used in the expression:</p>
+
+<pre><code>sumn(10)
+</code></pre>
+
+<p>But the lambda expression being assigned to <code>sumn</code> needs to be able
+to refer to <code>sumn</code>. So we need <code>sumn</code> to exist in the environment
+<em>before</em> we have fully calculated the value it will be assigned.</p>
+
+<p>This implies that we must be able to change the environment after it
+is created, and also that environment entries with no value may
+exist. For the latter problem we use <code>Option</code> (so an entry that has
+been created but not assigned can be <code>None</code> and later be updated to
+<code>Some</code>).</p>
+
+<p>To allow us to change the value after it is created, we store the
+value in a <code>std::cell:RefCell</code>. Chapter 10 of the book introduces
+this type under the section on “interior mutability”. Go read up on
+that. In short, it pushes borrow checking to runtime instead of
+compile time.</p>
+
+<p>So our final environment type is a <code>HashMap</code> from <code>String</code> (as
+before) to <code>Rc&lt;RefCell&lt;Option&lt;Value&gt;&gt;&gt;</code>.</p>
+
+<p>The good news is that relatively little code is impacted by this
+change since we already use a <code>lookup</code> helper to resolve variables.</p>
+
+<p>You will also need to implement type checking and interpretation for
+<code>Rec</code> expressions. Use the description in the textbook and carefully
+plan how type checking and evaluation need to work. It may be
+helpful to discuss this with other students and do some whiteboard
+work before writing code.</p>
+</body></html>

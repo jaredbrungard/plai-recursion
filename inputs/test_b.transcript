@@ -1,0 +1,116 @@
+> 
+> Please enter an expression:
+< rec sum: (int -> int) = fn(n: int) {
+<     if n < 1 {
+<         0
+<     } else {
+<         n + sum(n + -1)
+<     }
+< } {
+<     sum(5)
+< }
+> tokens: [rec, sum, :, (, int, ->, int, ), =, fn, (, n, :, int, ), {, if, n, <, 1, {, 0, }, else, {, n, +, sum, (, n, +, -1, ), }, }, {, sum, (, 5, ), }]
+> ast   : (rec (sum: (int -> int)) (lambda (n: int) (if (< n 1) 0 (+ n (sum (+ n -1))))) (sum 5))
+> type  : int
+> result: 15
+> 
+> Please enter an expression:
+< rec mult: (int -> (int -> int)) = fn(a: int) {
+<     fn(b: int) {
+<         if b < 1 {
+<             0
+<         } else {
+<             a + mult(a)(b + -1)
+<         }
+<     }
+< } {
+<     rec fact: (int -> int) = fn(n: int) {
+<         if n < 2 {
+<             1
+<         } else {
+<             mult(n)(fact(n + -1))
+<         }
+<     } {
+<         fact(4)
+<     }
+< }
+> tokens: [rec, mult, :, (, int, ->, (, int, ->, int, ), ), =, fn, (, a, :, int, ), {, fn, (, b, :, int, ), {, if, b, <, 1, {, 0, }, else, {, a, +, mult, (, a, ), (, b, +, -1, ), }, }, }, {, rec, fact, :, (, int, ->, int, ), =, fn, (, n, :, int, ), {, if, n, <, 2, {, 1, }, else, {, mult, (, n, ), (, fact, (, n, +, -1, ), ), }, }, {, fact, (, 4, ), }, }]
+> ast   : (rec (mult: (int -> (int -> int))) (lambda (a: int) (lambda (b: int) (if (< b 1) 0 (+ a ((mult a) (+ b -1)))))) (rec (fact: (int -> int)) (lambda (n: int) (if (< n 2) 1 ((mult n) (fact (+ n -1))))) (fact 4)))
+> type  : int
+> result: 24
+> 
+> Please enter an expression:
+< rec fib: (int -> int) = fn(n: int) {
+<     if n < 2 {
+<         n
+<     } else {
+<         fib(n + -1) + fib(n + -2)
+<     }
+< } {
+<     fib(6)
+< }
+> tokens: [rec, fib, :, (, int, ->, int, ), =, fn, (, n, :, int, ), {, if, n, <, 2, {, n, }, else, {, fib, (, n, +, -1, ), +, fib, (, n, +, -2, ), }, }, {, fib, (, 6, ), }]
+> ast   : (rec (fib: (int -> int)) (lambda (n: int) (if (< n 2) n (+ (fib (+ n -1)) (fib (+ n -2))))) (fib 6))
+> type  : int
+> result: 8
+> 
+> Please enter an expression:
+< rec countdown: (int -> str) = fn(n: int) {
+<     if n < 1 {
+<         "done"
+<     } else {
+<         countdown(n + -1) ++ " " ++ "count"
+<     }
+< } {
+<     countdown(3)
+< }
+> tokens: [rec, countdown, :, (, int, ->, str, ), =, fn, (, n, :, int, ), {, if, n, <, 1, {, "done", }, else, {, countdown, (, n, +, -1, ), ++, " ", ++, "count", }, }, {, countdown, (, 3, ), }]
+> ast   : (rec (countdown: (int -> str)) (lambda (n: int) (if (< n 1) "done" (++ (++ (countdown (+ n -1)) " ") "count"))) (countdown 3))
+> type  : str
+> result: done count count count
+> 
+> Please enter an expression:
+< rec mult: (int -> (int -> int)) = fn(a: int) {
+<     fn(b: int) {
+<         if b < 1 {
+<             0
+<         } else {
+<             a + mult(a)(b + -1)
+<         }
+<     }
+< } {
+<     rec power: (int -> (int -> int)) = fn(base: int) {
+<         fn(exp: int) {
+<             if exp < 1 {
+<                 1
+<             } else {
+<                 mult(base)(power(base)(exp + -1))
+<             }
+<         }
+<     } {
+<         power(2)(3)
+<     }
+< }
+> tokens: [rec, mult, :, (, int, ->, (, int, ->, int, ), ), =, fn, (, a, :, int, ), {, fn, (, b, :, int, ), {, if, b, <, 1, {, 0, }, else, {, a, +, mult, (, a, ), (, b, +, -1, ), }, }, }, {, rec, power, :, (, int, ->, (, int, ->, int, ), ), =, fn, (, base, :, int, ), {, fn, (, exp, :, int, ), {, if, exp, <, 1, {, 1, }, else, {, mult, (, base, ), (, power, (, base, ), (, exp, +, -1, ), ), }, }, }, {, power, (, 2, ), (, 3, ), }, }]
+> ast   : (rec (mult: (int -> (int -> int))) (lambda (a: int) (lambda (b: int) (if (< b 1) 0 (+ a ((mult a) (+ b -1)))))) (rec (power: (int -> (int -> int))) (lambda (base: int) (lambda (exp: int) (if (< exp 1) 1 ((mult base) ((power base) (+ exp -1)))))) ((power 2) 3)))
+> type  : int
+> result: 8
+> 
+> Please enter an expression:
+< let x = 10 {
+<     rec local_sum: (int -> int) = fn(m: int) {
+<         if m < 1 {
+<             0
+<         } else {
+<             m + local_sum(m + -1)
+<         }
+<     } {
+<         local_sum(x)
+<     }
+< }
+> tokens: [let, x, =, 10, {, rec, local_sum, :, (, int, ->, int, ), =, fn, (, m, :, int, ), {, if, m, <, 1, {, 0, }, else, {, m, +, local_sum, (, m, +, -1, ), }, }, {, local_sum, (, x, ), }, }]
+> ast   : (let x 10 (rec (local_sum: (int -> int)) (lambda (m: int) (if (< m 1) 0 (+ m (local_sum (+ m -1))))) (local_sum x)))
+> type  : int
+> result: 55
+> 
+> Please enter an expression:

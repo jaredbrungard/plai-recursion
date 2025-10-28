@@ -1,0 +1,441 @@
+> 
+> Please enter an expression:
+< 1
+> tokens: [1]
+> ast   : 1
+> type  : int
+> result: 1
+> 
+> Please enter an expression:
+< 0
+> tokens: [0]
+> ast   : 0
+> type  : int
+> result: 0
+> 
+> Please enter an expression:
+< -4
+> tokens: [-4]
+> ast   : -4
+> type  : int
+> result: -4
+> 
+> Please enter an expression:
+< true
+> tokens: [true]
+> ast   : true
+> type  : bool
+> result: true
+> 
+> Please enter an expression:
+< false
+> tokens: [false]
+> ast   : false
+> type  : bool
+> result: false
+> 
+> Please enter an expression:
+< 67 + 32
+> tokens: [67, +, 32]
+> ast   : (+ 67 32)
+> type  : int
+> result: 99
+> 
+> Please enter an expression:
+< 3 + 4 + 9 + 12
+> tokens: [3, +, 4, +, 9, +, 12]
+> ast   : (+ (+ (+ 3 4) 9) 12)
+> type  : int
+> result: 28
+> 
+> Please enter an expression:
+< 1 + -2 + 3 + -4 + 5
+> tokens: [1, +, -2, +, 3, +, -4, +, 5]
+> ast   : (+ (+ (+ (+ 1 -2) 3) -4) 5)
+> type  : int
+> result: 3
+> 
+> Please enter an expression:
+< if true { 1 + (2 + 3) } else { 1 + 2 + 3 }
+> tokens: [if, true, {, 1, +, (, 2, +, 3, ), }, else, {, 1, +, 2, +, 3, }]
+> ast   : (if true (+ 1 (+ 2 3)) (+ (+ 1 2) 3))
+> type  : int
+> result: 6
+> 
+> Please enter an expression:
+< if false { 1 + (2 + 3) } else { false }
+> tokens: [if, false, {, 1, +, (, 2, +, 3, ), }, else, {, false, }]
+> ast   : (if false (+ 1 (+ 2 3)) false)
+> Type check failure: then and else branches have different types
+> 
+> Please enter an expression:
+< let x = 89 { x }
+> tokens: [let, x, =, 89, {, x, }]
+> ast   : (let x 89 x)
+> type  : int
+> result: 89
+> 
+> Please enter an expression:
+< let x = 15 { 73 }
+> tokens: [let, x, =, 15, {, 73, }]
+> ast   : (let x 15 73)
+> type  : int
+> result: 73
+> 
+> Please enter an expression:
+< let y = 3 { if true { y } else { y + 9 } }
+> tokens: [let, y, =, 3, {, if, true, {, y, }, else, {, y, +, 9, }, }]
+> ast   : (let y 3 (if true y (+ y 9)))
+> type  : int
+> result: 3
+> 
+> Please enter an expression:
+< let z = 123 { let z = 4 { z + 2 } + z }
+> tokens: [let, z, =, 123, {, let, z, =, 4, {, z, +, 2, }, +, z, }]
+> ast   : (let z 123 (+ (let z 4 (+ z 2)) z))
+> type  : int
+> result: 129
+> 
+> Please enter an expression:
+< let z = 123 { z + let z = 4 { z + 2 } }
+> tokens: [let, z, =, 123, {, z, +, let, z, =, 4, {, z, +, 2, }, }]
+> ast   : (let z 123 (+ z (let z 4 (+ z 2))))
+> type  : int
+> result: 129
+> 
+> Please enter an expression:
+< let a = 123 { let a = 9 { a + -2 } + let a = 4 { a + 2 } } + -13
+> tokens: [let, a, =, 123, {, let, a, =, 9, {, a, +, -2, }, +, let, a, =, 4, {, a, +, 2, }, }, +, -13]
+> ast   : (+ (let a 123 (+ (let a 9 (+ a -2)) (let a 4 (+ a 2)))) -13)
+> type  : int
+> result: 0
+> 
+> Please enter an expression:
+< (fn(a:int) { a + a })(13)
+> tokens: [(, fn, (, a, :, int, ), {, a, +, a, }, ), (, 13, )]
+> ast   : ((lambda (a: int) (+ a a)) 13)
+> type  : int
+> result: 26
+> 
+> Please enter an expression:
+< fn(a:int) { a + a }(13)
+> tokens: [fn, (, a, :, int, ), {, a, +, a, }, (, 13, )]
+> ast   : ((lambda (a: int) (+ a a)) 13)
+> type  : int
+> result: 26
+> 
+> Please enter an expression:
+< let f = fn(x:int) { x + -1 } { f(10) }
+> tokens: [let, f, =, fn, (, x, :, int, ), {, x, +, -1, }, {, f, (, 10, ), }]
+> ast   : (let f (lambda (x: int) (+ x -1)) (f 10))
+> type  : int
+> result: 9
+> 
+> Please enter an expression:
+< fn(y:int) { 1 }(10)
+> tokens: [fn, (, y, :, int, ), {, 1, }, (, 10, )]
+> ast   : ((lambda (y: int) 1) 10)
+> type  : int
+> result: 1
+> 
+> Please enter an expression:
+< let x = 2 { fn(y:int) { 1 }(10) }
+> tokens: [let, x, =, 2, {, fn, (, y, :, int, ), {, 1, }, (, 10, ), }]
+> ast   : (let x 2 ((lambda (y: int) 1) 10))
+> type  : int
+> result: 1
+> 
+> Please enter an expression:
+< let f = fn(y:int) {x} { let x=1 { f(10) } }
+> tokens: [let, f, =, fn, (, y, :, int, ), {, x, }, {, let, x, =, 1, {, f, (, 10, ), }, }]
+> ast   : (let f (lambda (y: int) x) (let x 1 (f 10)))
+> Type check failure: no known type for x
+> 
+> Please enter an expression:
+< let x = 1 { let f = fn(y:int){x} { let x = 2 { f(10) } } }
+> tokens: [let, x, =, 1, {, let, f, =, fn, (, y, :, int, ), {, x, }, {, let, x, =, 2, {, f, (, 10, ), }, }, }]
+> ast   : (let x 1 (let f (lambda (y: int) x) (let x 2 (f 10))))
+> type  : int
+> result: 1
+> 
+> Please enter an expression:
+< let x = 3 { fn(y:int) { x + y } }(4)
+> tokens: [let, x, =, 3, {, fn, (, y, :, int, ), {, x, +, y, }, }, (, 4, )]
+> ast   : ((let x 3 (lambda (y: int) (+ x y))) 4)
+> type  : int
+> result: 7
+> 
+> Please enter an expression:
+< let y = 3 { fn(y:int) { y + 1 } }(5)
+> tokens: [let, y, =, 3, {, fn, (, y, :, int, ), {, y, +, 1, }, }, (, 5, )]
+> ast   : ((let y 3 (lambda (y: int) (+ y 1))) 5)
+> type  : int
+> result: 6
+> 
+> Please enter an expression:
+< fn(x:int) {x+x}(12) + fn(x:int) {x+x}(12)
+> tokens: [fn, (, x, :, int, ), {, x, +, x, }, (, 12, ), +, fn, (, x, :, int, ), {, x, +, x, }, (, 12, )]
+> ast   : (+ ((lambda (x: int) (+ x x)) 12) ((lambda (x: int) (+ x x)) 12))
+> type  : int
+> result: 48
+> 
+> Please enter an expression:
+< let add5 = fn(x:int) {x+5} {add5(3) + 12 + add5(9)}
+> tokens: [let, add5, =, fn, (, x, :, int, ), {, x, +, 5, }, {, add5, (, 3, ), +, 12, +, add5, (, 9, ), }]
+> ast   : (let add5 (lambda (x: int) (+ x 5)) (+ (+ (add5 3) 12) (add5 9)))
+> type  : int
+> result: 34
+> 
+> Please enter an expression:
+< let adder = fn(x:int) {fn(y:int) {x+y}} {
+<     adder(2)(3) + adder(9)(8) + 1 + fn(g:int){-4+g}(adder(2)(3))
+< }
+> tokens: [let, adder, =, fn, (, x, :, int, ), {, fn, (, y, :, int, ), {, x, +, y, }, }, {, adder, (, 2, ), (, 3, ), +, adder, (, 9, ), (, 8, ), +, 1, +, fn, (, g, :, int, ), {, -4, +, g, }, (, adder, (, 2, ), (, 3, ), ), }]
+> ast   : (let adder (lambda (x: int) (lambda (y: int) (+ x y))) (+ (+ (+ ((adder 2) 3) ((adder 9) 8)) 1) ((lambda (g: int) (+ -4 g)) ((adder 2) 3))))
+> type  : int
+> result: 24
+> 
+> Please enter an expression:
+< let adder = fn(x:int) {
+<     fn(y:int) {x+y}
+< } {
+<     let add8 = adder(8) {
+<         add8(2) + adder(4)(6)
+<     }
+< }
+> tokens: [let, adder, =, fn, (, x, :, int, ), {, fn, (, y, :, int, ), {, x, +, y, }, }, {, let, add8, =, adder, (, 8, ), {, add8, (, 2, ), +, adder, (, 4, ), (, 6, ), }, }]
+> ast   : (let adder (lambda (x: int) (lambda (y: int) (+ x y))) (let add8 (adder 8) (+ (add8 2) ((adder 4) 6))))
+> type  : int
+> result: 20
+> 
+> Please enter an expression:
+< 5 + 6
+> tokens: [5, +, 6]
+> ast   : (+ 5 6)
+> type  : int
+> result: 11
+> 
+> Please enter an expression:
+< "hello" ++ " world"
+> tokens: ["hello", ++, " world"]
+> ast   : (++ "hello" " world")
+> type  : str
+> result: hello world
+> 
+> Please enter an expression:
+< 5 ++ 6
+> tokens: [5, ++, 6]
+> ast   : (++ 5 6)
+> Type check failure: not both strings
+> 
+> Please enter an expression:
+< "hello" + " world"
+> tokens: ["hello", +, " world"]
+> ast   : (+ "hello" " world")
+> Type check failure: not both integers
+> 
+> Please enter an expression:
+< 5 + (6 + 7)
+> tokens: [5, +, (, 6, +, 7, )]
+> ast   : (+ 5 (+ 6 7))
+> type  : int
+> result: 18
+> 
+> Please enter an expression:
+< 5 + (6 + "hi")
+> tokens: [5, +, (, 6, +, "hi", )]
+> ast   : (+ 5 (+ 6 "hi"))
+> Type check failure: not both integers
+> 
+> Please enter an expression:
+< if true { 1 } else { 2 }
+> tokens: [if, true, {, 1, }, else, {, 2, }]
+> ast   : (if true 1 2)
+> type  : int
+> result: 1
+> 
+> Please enter an expression:
+< if 4 { 1 } else { 2 }
+> tokens: [if, 4, {, 1, }, else, {, 2, }]
+> ast   : (if 4 1 2)
+> Type check failure: condition must be a bool
+> 
+> Please enter an expression:
+< if true { 1 } else { "hi" }
+> tokens: [if, true, {, 1, }, else, {, "hi", }]
+> ast   : (if true 1 "hi")
+> Type check failure: then and else branches have different types
+> 
+> Please enter an expression:
+< 1 < 5
+> tokens: [1, <, 5]
+> ast   : (< 1 5)
+> type  : bool
+> result: true
+> 
+> Please enter an expression:
+< 5 < 1
+> tokens: [5, <, 1]
+> ast   : (< 5 1)
+> type  : bool
+> result: false
+> 
+> Please enter an expression:
+< 5 < 5
+> tokens: [5, <, 5]
+> ast   : (< 5 5)
+> type  : bool
+> result: false
+> 
+> Please enter an expression:
+< true < false
+> tokens: [true, <, false]
+> ast   : (< true false)
+> Type check failure: not both numbers
+> 
+> Please enter an expression:
+< true < 4
+> tokens: [true, <, 4]
+> ast   : (< true 4)
+> Type check failure: not both numbers
+> 
+> Please enter an expression:
+< 3 < false
+> tokens: [3, <, false]
+> ast   : (< 3 false)
+> Type check failure: not both numbers
+> 
+> Please enter an expression:
+< "a" < "b"
+> tokens: ["a", <, "b"]
+> ast   : (< "a" "b")
+> Type check failure: not both numbers
+> 
+> Please enter an expression:
+< "a" < 5
+> tokens: ["a", <, 5]
+> ast   : (< "a" 5)
+> Type check failure: not both numbers
+> 
+> Please enter an expression:
+< 5 < "2"
+> tokens: [5, <, "2"]
+> ast   : (< 5 "2")
+> Type check failure: not both numbers
+> 
+> Please enter an expression:
+< if 3 < 4 { 3 } else { 4 }
+> tokens: [if, 3, <, 4, {, 3, }, else, {, 4, }]
+> ast   : (if (< 3 4) 3 4)
+> type  : int
+> result: 3
+> 
+> Please enter an expression:
+< let min = fn(x: int) {
+<     fn(y: int) {
+<         if x < y { x } else { y }
+<     }
+< } {
+<     min
+< }
+> tokens: [let, min, =, fn, (, x, :, int, ), {, fn, (, y, :, int, ), {, if, x, <, y, {, x, }, else, {, y, }, }, }, {, min, }]
+> ast   : (let min (lambda (x: int) (lambda (y: int) (if (< x y) x y))) min)
+> type  : (int -> (int -> int))
+> result: closure((lambda (x: int) (lambda (y: int) (if (< x y) x y))), {})
+> 
+> Please enter an expression:
+< let min = fn(x: int) {
+<     fn(y: int) {
+<         if x < y { x } else { y }
+<     }
+< } {
+<     min(9)(3)
+< }
+> tokens: [let, min, =, fn, (, x, :, int, ), {, fn, (, y, :, int, ), {, if, x, <, y, {, x, }, else, {, y, }, }, }, {, min, (, 9, ), (, 3, ), }]
+> ast   : (let min (lambda (x: int) (lambda (y: int) (if (< x y) x y))) ((min 9) 3))
+> type  : int
+> result: 3
+> 
+> Please enter an expression:
+< rec sumn: (int -> int) = fn (n: int) {
+<     if n < 1 {
+<         n
+<     } else {
+<         n + sumn(n + -1)
+<     }
+< } {
+<     sumn(10)
+< }
+> tokens: [rec, sumn, :, (, int, ->, int, ), =, fn, (, n, :, int, ), {, if, n, <, 1, {, n, }, else, {, n, +, sumn, (, n, +, -1, ), }, }, {, sumn, (, 10, ), }]
+> ast   : (rec (sumn: (int -> int)) (lambda (n: int) (if (< n 1) n (+ n (sumn (+ n -1))))) (sumn 10))
+> type  : int
+> result: 55
+> 
+> Please enter an expression:
+< rec mult: (int -> (int -> int)) = fn (n: int) {
+<     fn (m: int) {
+<         if n < 1 {
+<             0
+<         } else {
+<             if n < 2 {
+<                 m
+<             } else {
+<                 m + mult(n + -1)(m)
+<             }
+<         }
+<     }
+< } {
+<     rec fact: (int -> int) = fn (n: int) {
+<         if n < 2 {
+<             1
+<         } else {
+<             mult(n)(fact(n + -1))
+<         }
+<     } {
+<         fact(10)
+<     }
+< }
+> tokens: [rec, mult, :, (, int, ->, (, int, ->, int, ), ), =, fn, (, n, :, int, ), {, fn, (, m, :, int, ), {, if, n, <, 1, {, 0, }, else, {, if, n, <, 2, {, m, }, else, {, m, +, mult, (, n, +, -1, ), (, m, ), }, }, }, }, {, rec, fact, :, (, int, ->, int, ), =, fn, (, n, :, int, ), {, if, n, <, 2, {, 1, }, else, {, mult, (, n, ), (, fact, (, n, +, -1, ), ), }, }, {, fact, (, 10, ), }, }]
+> ast   : (rec (mult: (int -> (int -> int))) (lambda (n: int) (lambda (m: int) (if (< n 1) 0 (if (< n 2) m (+ m ((mult (+ n -1)) m)))))) (rec (fact: (int -> int)) (lambda (n: int) (if (< n 2) 1 ((mult n) (fact (+ n -1))))) (fact 10)))
+> type  : int
+> result: 3628800
+> 
+> Please enter an expression:
+< rec fib: (int -> int) = fn (n: int) {
+<     if n < 2 {
+<         n
+<     } else {
+<         fib(n + -1) + fib(n + -2)
+<     }
+< } {
+<     fib(11)
+< }
+> tokens: [rec, fib, :, (, int, ->, int, ), =, fn, (, n, :, int, ), {, if, n, <, 2, {, n, }, else, {, fib, (, n, +, -1, ), +, fib, (, n, +, -2, ), }, }, {, fib, (, 11, ), }]
+> ast   : (rec (fib: (int -> int)) (lambda (n: int) (if (< n 2) n (+ (fib (+ n -1)) (fib (+ n -2))))) (fib 11))
+> type  : int
+> result: 89
+> 
+> Please enter an expression:
+< rec is_even: (int -> bool) = fn (n: int) {
+<     rec is_odd: (int -> bool) = fn (x: int) {
+<         if x < 1 {
+<             false
+<         } else {
+<             is_even(x + -1)
+<         }
+<     } {
+<         if n < 1 {
+<             true
+<         } else {
+<             is_odd(n + -1)
+<         }
+<     }
+< } {
+<     is_even(8)
+< }
+> tokens: [rec, is_even, :, (, int, ->, bool, ), =, fn, (, n, :, int, ), {, rec, is_odd, :, (, int, ->, bool, ), =, fn, (, x, :, int, ), {, if, x, <, 1, {, false, }, else, {, is_even, (, x, +, -1, ), }, }, {, if, n, <, 1, {, true, }, else, {, is_odd, (, n, +, -1, ), }, }, }, {, is_even, (, 8, ), }]
+> ast   : (rec (is_even: (int -> bool)) (lambda (n: int) (rec (is_odd: (int -> bool)) (lambda (x: int) (if (< x 1) false (is_even (+ x -1)))) (if (< n 1) true (is_odd (+ n -1))))) (is_even 8))
+> type  : bool
+> result: true
+> 
+> Please enter an expression:
